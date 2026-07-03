@@ -1,0 +1,38 @@
+# API
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Image Processing - M1
+opencv-python
+albumentations
+Pillow
+
+# Deep Learning core
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Detection - M2 (SV1)
+torchxrayvision
+
+# Grad-CAM - M2 visual (SV6)
+grad-cam
+
+# Caption & VQA - M3 (SV3, SV4)
+transformers
+accelerate
+pandas
+google-genai
+
+# Frontend (SV6)
+gradio
+
+# PDF Generation
+reportlab
+
+# Utils
+numpy>=2.0.0,<2.3.0
+scikit-learn
+matplotlib
+tqdm
+python-dotenv
