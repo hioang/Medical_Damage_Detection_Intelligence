@@ -22,7 +22,7 @@ Hệ thống API hỗ trợ chẩn đoán hình ảnh y tế đa phương thức
 
 ```bash
 git clone <link-repo-cua-ban>
-cd medical-lesion-detection
+cd vào thư mục của mình
 ```
 
 **Bước 2: Tạo và kích hoạt môi trường ảo (Virtual Environment)**
@@ -127,7 +127,7 @@ Hệ thống API hỗ trợ chẩn đoán hình ảnh y tế đa phương thức
 
 ```bash
 git clone <link-repo-cua-ban>
-cd medical-lesion-detection
+cd vào thư mục của mình
 ```
 
 **Bước 2: Tạo và kích hoạt môi trường ảo (Virtual Environment)**
