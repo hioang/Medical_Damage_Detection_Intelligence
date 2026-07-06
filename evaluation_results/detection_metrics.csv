@@ -1,0 +1,3 @@
+Metric,Value,Description
+mAP@0.5,0.879,Độ chính xác trung bình của Bounding Box
+Mean IoU (Segmentation),0.772,Độ phủ mặt nạ tổn thương

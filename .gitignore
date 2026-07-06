@@ -1,0 +1,23 @@
+
+# Python runtime
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Biến môi trường
+.env
+
+# Data & model weights
+detection/data/*
+!detection/data/.gitkeep
+backend/static/*
+!backend/static/.gitkeep
+**/checkpoints/
+**/*.pt
+**/*.onnx
+
+# Dev tools
+.pytest_cache/
+gradio_cached_examples/
+*.egg-info/

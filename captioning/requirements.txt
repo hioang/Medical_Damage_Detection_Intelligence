@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+torch
+torchvision
+pandas
+Pillow
+=======
+torch
+torchvision
+pandas
+Pillow
+>>>>>>> 2c95cd330fa2d75770d21db6b8913872a885ec9e
+numpy

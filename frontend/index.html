@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChestVision AI</title>
+    <meta name="description" content="ChestVision AI - phát hiện vùng tổn thương trên ảnh X-quang ngực." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="page-bg"></div>
+
+    <header class="topbar">
+        <div class="topbar__brand">
+            <div class="brand__icon" aria-hidden="true"><i class="fa-solid fa-lungs"></i></div>
+            <div class="brand__text">
+                <div class="brand__name">ChestVision AI</div>
+                <div class="brand__tag">CHEST X-RAY LESION DETECTION</div>
+            </div>
+        </div>
+        <!-- <nav class="topbar__nav" aria-label="Project badges">
+            <span class="pill pill--active">v2.1.0</span>
+            <span class="pill">YOLOv8 + BLIP-2</span>
+            <span class="pill">GradCAM</span>
+        </nav> -->
+    </header>
+
+    <main class="app-shell">
+        <section class="hero">
+            <div class="hero__pill"><span class="pulse-dot"></span> AI y tế · Phát hiện bất thường</div>
+            <h1>Phát hiện vùng tổn thương<br />trên <em>ảnh X-quang ngực</em></h1>
+            <p class="hero__sub">Giao diện prototype cho quy trình phân tích X-quang ngực, gồm phát hiện, bản đồ nhiệt,
+                mô tả y khoa và hỏi đáp lâm sàng.</p>
+        </section>
+
+        <section class="columns">
+            <aside class="left-panel">
+                <article class="card">
+                    <div class="card__header">
+                        <div class="card__icon"><i class="fa-solid fa-upload"></i></div>
+                        <h2>TẢI ẢNH X-QUANG</h2>
+                    </div>
+
+                    <label class="upload-zone" for="xrayInput" id="uploadZone">
+                        <input id="xrayInput" type="file" accept="image/*,.dcm" hidden />
+                        <div class="upload-zone__icon"><i class="fa-solid fa-x-ray"></i></div>
+                        <div class="upload-zone__title">Kéo thả hoặc chọn tệp ảnh</div>
+                        <div class="upload-zone__hint">Hỗ trợ: JPG · PNG · DICOM · Tối đa 50MB</div>
+                    </label>
+
+                    <div class="preview-wrap hidden" id="previewWrap">
+                        <span class="preview-badge">XEM TRƯỚC</span>
+                        <img id="previewImage" alt="Ảnh xem trước" />
+                    </div>
+
+                    <button id="analyzeBtn" class="btn btn--primary" disabled aria-label="Phân tích ảnh X-quang ngực">
+                        <i class="fa-solid fa-microscope"></i>
+                        <span>Phân tích</span>
+                    </button>
+                </article>
+
+                <article class="card" id="questionCard">
+                    <div class="card__header">
+                        <div class="card__icon"><i class="fa-solid fa-comments"></i></div>
+                        <h2>CÂU HỎI LÂM SÀNG </h2>
+                    </div>
+
+                    <div class="field">
+                        <textarea id="questionInput" rows="4"
+                            placeholder="Ví dụ: Bệnh nhân có tràn dịch màng phổi không?"></textarea>
+                    </div>
+                </article>
+
+                <article class="card hidden" id="progressCard">
+                    <div class="card__header">
+                        <div class="card__icon card__icon--warning"><i class="fa-solid fa-bolt"></i></div>
+                        <h2>TIẾN TRÌNH PHÂN TÍCH</h2>
+                    </div>
+
+                    <div class="step-list" id="stepList">
+                        <div class="step-item" data-step="0"><i class="fa-solid fa-magnifying-glass"></i><span>Object
+                                Detection</span><span class="step-state"></span></div>
+                        <div class="step-item" data-step="1"><i class="fa-solid fa-fire"></i><span>GradCAM
+                                Heatmap</span><span class="step-state"></span></div>
+                        <div class="step-item" data-step="2"><i class="fa-solid fa-file-medical"></i><span>Medical
+                                Caption</span><span class="step-state"></span></div>
+                        <div class="step-item" data-step="3"><i class="fa-solid fa-comments"></i><span>VQA
+                                Module</span><span class="step-state"></span></div>
+                    </div>
+                </article>
+            </aside>
+
+            <section class="right-panel">
+                <div class="empty-state" id="emptyState">
+                    <i class="fa-solid fa-x-ray"></i>
+                    <p class="empty-state__mono">// Awaiting image input...</p>
+                    <span>Chọn một ảnh X-quang và bấm Phân tích để xem kết quả.</span>
+                </div>
+
+                <article class="results-panel hidden" id="resultsPanel">
+                    <div class="analysis-layout">
+                        <section class="analysis-output">
+                            <div class="section-title">── BẢN ĐỒ NHIỆT ──</div>
+                            <div class="heatmap-grid">
+                                <article class="image-card">
+                                    <div class="image-card__head">Ảnh X-quang gốc</div>
+                                    <div class="image-frame"><img id="originalImage" alt="Ảnh X-quang gốc" /></div>
+                                </article>
+                                <article class="image-card">
+                                    <div class="image-card__head">Ảnh phát hiện tổn thương</div>
+                                    <div class="image-frame"><img id="heatmapImage" alt="Ảnh GradCAM và BBox" /></div>
+                                </article>
+                            </div>
+
+                            <div class="section-title">── MỨC CẢNH BÁO ──</div>
+                            <div class="severity-row" id="severityRow">
+                                <div class="severity-dot" id="severityDot"></div>
+                                <div>
+                                    <div class="severity-label" id="severityLabel">BÌNH THƯỜNG</div>
+                                    <div class="severity-desc" id="severityDesc">Chưa có kết quả.</div>
+                                </div>
+                            </div>
+
+                            <div class="section-title">── MÔ TẢ Y KHOA ──</div>
+                            <div class="caption-box" id="captionBox">Chưa có mô tả y khoa được sinh ra.</div>
+
+                            <div class="section-title">── THỐNG KÊ NHANH ──</div>
+                            <div class="stats-grid">
+                                <div class="stat-card stat-card--danger"><span id="findingsCount">0</span><small>Phát
+                                        hiện</small></div>
+                                <div class="stat-card stat-card--accent"><span id="avgConfidence">0%</span><small>Độ tin
+                                        cậy TB</small></div>
+                                <div class="stat-card stat-card--warning"><span id="inferenceTime">0
+                                        ms</span><small>Thời gian suy luận</small></div>
+                            </div>
+
+                            <!-- Detection table removed per user request -->
+
+                            <button id="exportReportBtn" class="btn btn--primary"
+                                style="margin-top: 24px; width: 100%; margin-bottom: 40px;"
+                                aria-label="Xuất báo cáo PDF">
+                                <i class="fa-solid fa-download"></i>
+                                <span>Xuất báo cáo</span>
+                            </button>
+                        </section>
+
+                        <aside class="chat-panel">
+                            <div class="chat-card">
+                                <div class="chat-card__header">
+                                    <div>
+                                        <div class="chat-card__title"><i class="fa-solid fa-comments"></i> VQA Chat
+                                        </div>
+                                        <!-- <div class="chat-card__sub">Câu hỏi ở bên phải, câu trả lời hiển thị ở giữa
+                                            khung</div> -->
+                                    </div>
+                                </div>
+
+                                <div class="chat-stream" id="chatStream">
+                                    <div class="chat-empty">Nhập câu hỏi lâm sàng để bắt đầu cuộc hội thoại.</div>
+                                </div>
+
+                                <div class="chat-input">
+                                    <label for="chatQuestionInput">Câu hỏi lâm sàng</label>
+                                    <textarea id="chatQuestionInput" rows="4"
+                                        placeholder="Ví dụ: Bệnh nhân có tràn dịch màng phổi không?"></textarea>
+                                    <button id="chatAnalyzeBtn" class="btn btn--primary" disabled
+                                        aria-label="Gửi câu hỏi và phân tích">
+                                        <i class="fa-solid fa-comments"></i>
+                                        <span>Gửi & phân tích</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </article>
+            </section>
+        </section>
+    </main>
+
+    <div class="modal-overlay hidden" id="modalOverlay" aria-hidden="true">
+        <div class="modal-inner" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <button class="modal-close" id="modalClose" aria-label="Đóng hộp thoại"><i
+                    class="fa-solid fa-xmark"></i></button>
+            <img id="modalImage" alt="Zoomed analysis image" />
+            <div class="modal-actions">
+                <button class="btn btn--ghost" id="modalDismiss"><i
+                        class="fa-solid fa-xmark"></i><span>Đóng</span></button>
+                <a class="btn btn--primary" id="modalDownload" download><i class="fa-solid fa-download"></i><span>Tải
+                        về</span></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="reportTemplate" class="hidden"
+        style="display: none; padding: 40px; font-family: Arial, sans-serif; background: white;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-size: 24px; margin: 0 0 10px 0;">ChestVision AI - Báo cáo phân tích X-quang</h1>
+            <p style="color: #666; margin: 0;">Hệ thống phát hiện tổn thương trên ảnh X-quang ngực</p>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h2 style="font-size: 16px; border-bottom: 2px solid #1A73E8; padding-bottom: 10px; margin-bottom: 15px;">
+                Ảnh phân tích</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <p style="font-weight: bold; margin-bottom: 10px;">Ảnh X-quang gốc</p>
+                    <img id="reportOriginalImage" src=""
+                        style="width: 100%; border: 1px solid #ddd; border-radius: 8px;" />
+                </div>
+                <div>
+                    <p style="font-weight: bold; margin-bottom: 10px;">Ảnh phát hiện tổn thương (GradCAM)</p>
+                    <img id="reportHeatmapImage" src=""
+                        style="width: 100%; border: 1px solid #ddd; border-radius: 8px;" />
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <h2 style="font-size: 16px; border-bottom: 2px solid #1A73E8; padding-bottom: 10px; margin-bottom: 15px;">Mô
+                tả y khoa</h2>
+            <div id="reportCaption"
+                style="padding: 15px; background: #f5f5f5; border-radius: 8px; line-height: 1.6; color: #333;">Chưa có
+                mô tả.</div>
+        </div>
+
+        <div
+            style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px; text-align: center; color: #999; font-size: 12px;">
+            <p>Báo cáo được tạo bởi ChestVision AI · Chỉ dùng cho nghiên cứu và giáo dục · Không thay thế chẩn đoán lâm
+                sàng</p>
+        </div>
+    </div>
+
+    <footer class="footer">ChestVision AI · Prototype UI · Chỉ dùng cho nghiên cứu và giáo dục · Không thay thế chẩn
+        đoán lâm sàng</footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
